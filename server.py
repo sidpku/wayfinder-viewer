@@ -15,7 +15,7 @@ WEB = ROOT / 'web'
 
 
 def parse_target(query):
-    repo = validate_repo(query.get('repo', ['sidpku/DSAaaS'])[0])
+    repo = validate_repo(query.get('repo', [''])[0])
     try:
         number = int(query.get('number', ['1'])[0])
     except (ValueError, TypeError):
@@ -151,13 +151,20 @@ def make_handler(store, defaults):
 
 def main():
     parser = argparse.ArgumentParser(description='Wayfinder 本地地图查看器')
-    parser.add_argument('--repo', default='sidpku/DSAaaS')
+    parser.add_argument('--repo', default='', help='GitHub repository in owner/repo format; omit to choose in the browser')
     parser.add_argument('--map', type=int, default=1, dest='number')
     parser.add_argument('--port', type=int, default=8766)
     parser.add_argument('--no-browser', action='store_true')
     parser.add_argument('--export', type=Path, help='将已有缓存导出成可直接打开的 HTML，然后退出')
     args = parser.parse_args()
-    repo, number = parse_target({'repo': [args.repo], 'number': [str(args.number)]})
+    repo, number = args.repo, args.number
+    if repo or args.export:
+        try:
+            repo, number = parse_target({'repo': [repo], 'number': [str(number)]})
+        except ValueError as exc:
+            parser.error(str(exc))
+    elif number < 1:
+        parser.error('地图议题编号必须为正整数。')
     store = SnapshotStore(ROOT / '.cache')
     if args.export:
         value = store.read(repo, number)

@@ -4,7 +4,7 @@
   const STATUS = {frontier:'可开始',blocked:'被阻塞',claimed:'已认领',closed:'已关闭',unknown:'待核实',external:'地图外前置'};
   const TYPE = {grilling:'讨论',research:'调研',prototype:'原型',task:'准备事项'};
   const offline = Boolean(window.WAYFINDER_SNAPSHOT);
-  const state = {data:null,repo:'sidpku/DSAaaS',number:1,selected:null,scope:'all',status:'all',type:'all',search:'',focus:false,busy:false,scale:1,x:24,y:20,width:1,height:1,leftHidden:false,rightHidden:false};
+  const state = {data:null,repo:'',number:1,selected:null,scope:'all',status:'all',type:'all',search:'',focus:false,busy:false,scale:1,x:24,y:20,width:1,height:1,leftHidden:false,rightHidden:false};
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function safeUrl(value) {
     try { const url = new URL(value); return url.protocol === 'https:' ? escape(url.href) : '#'; } catch { return '#'; }
@@ -177,7 +177,7 @@
     finally{clearTimeout(timer);}
   }
   async function refresh(repo=state.repo,number=state.number){
-    if(state.busy||offline)return;setBusy(true);notice('正在读取 GitHub 地图、前置关系和评论，请稍候。已有快照仍可浏览。');
+    if(state.busy||offline)return;if(!repo){openSource();return false;}setBusy(true);notice('正在读取 GitHub 地图、前置关系和评论，请稍候。已有快照仍可浏览。');
     try{const data=await request('/api/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repo,number})});applyData(data);toast('地图已更新');return true;}
     catch(error){notice(error.message,true);return false;}finally{setBusy(false);}
   }
@@ -241,7 +241,7 @@
   $('exportButton').addEventListener('click',()=>{if(!state.data)return;if(offline){toast('当前文件已经是可独立打开的 HTML 快照。');return;}const anchor=document.createElement('a');anchor.href=`/api/export?repo=${encodeURIComponent(state.repo)}&number=${state.number}`;anchor.download='wayfinder-map.html';document.body.appendChild(anchor);anchor.click();anchor.remove();toast('已导出当前快照；离线文件无法刷新 GitHub。');});
   async function boot(){
     if(offline){applyData(window.WAYFINDER_SNAPSHOT);setBusy(false);return;}
-    try{const config=await request('/api/config');const query=new URLSearchParams(location.search);state.repo=query.get('repo')||config.repo;state.number=Number(query.get('map')||config.number);await openMap(state.repo,state.number,false);}catch(error){notice(error.message,true);$('destination').textContent='还没有读取到地图，点击刷新重试。';}
+    try{const config=await request('/api/config');const query=new URLSearchParams(location.search);state.repo=query.get('repo')||config.repo;state.number=Number(query.get('map')||config.number);if(!state.repo){$('destination').textContent='请选择仓库和地图。';$('syncTime').textContent='尚未选择地图';openSource();return;}await openMap(state.repo,state.number,false);}catch(error){notice(error.message,true);$('destination').textContent='还没有读取到地图，点击刷新重试。';}
   }
   updatePanelControls();
   boot();

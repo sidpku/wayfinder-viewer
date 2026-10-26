@@ -1,62 +1,101 @@
-# Wayfinder 轻量查看器
+# Wayfinder Viewer
 
-本地查看 GitHub 上的 Wayfinder 决策地图。使用原生父子议题与阻塞关系，支持拖动缩放、搜索、状态和类型筛选、聚焦关联、问题与评论、地图说明、切换仓库和地图、手动刷新与离线 HTML 导出。
+English | [简体中文](README.zh-CN.md)
 
-## 打开
+A lightweight, local viewer for Wayfinder decision maps stored in GitHub Issues. Explore decisions, blockers, and discussions on an interactive canvas, then export a self-contained HTML snapshot.
 
-双击本目录的 `start.command`。服务启动后打开 `http://127.0.0.1:8766`。
+## Background and inspiration
 
-默认地图是 `sidpku/DSAaaS` 的《回溯系统打分开发 AaaS：首版系统规格决策地图》。如果服务已经运行，直接打开该地址即可。
+Planning a large project often spreads questions, decisions, and dependencies across many issues. Wayfinder Viewer brings those relationships together so you can see what is ready to discuss, what is blocked, and how each decision connects to the goal.
 
-要求 Python 3.10+ 和已登录的 GitHub CLI。没有新增 Python 或前端依赖，无需编译或安装前端包。启动失败时，终端窗口会显示原因。首次连接或没有缓存的地图会向 GitHub 读取；之后打开优先展示本地快照，点击“刷新地图”获取新状态。
+Inspired by **Matt Pocock’s [Wayfinder skill](https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder)** in [mattpocock/skills](https://github.com/mattpocock/skills). Its approach organizes planning as a map of decision tickets, with a destination and a frontier of unblocked, unclaimed questions. This project adds an independent visual reader for the GitHub representation of that workflow; it is not an official Matt Pocock or GitHub product.
 
-也可以在本目录运行：
+## Pure vibe coding
+
+**This is a pure vibe-coded project.** It was built through natural-language conversations with an AI coding agent, with humans directing requirements and reviewing the result. This describes the development process, not a guarantee of correctness or a security audit. Tests and contributions are welcome.
+
+## Features
+
+- Interactive dependency graph with pan, zoom, search, status/type filters, and upstream/downstream focus.
+- Decision details, comments, map description, and links back to GitHub.
+- A ready-to-start frontier, based on native GitHub sub-issues, blockers, and assignees.
+- Repository/map switching, collapsible sidebars, and a mobile list view.
+- Local snapshot caching, explicit refresh, and standalone offline HTML export.
+- Python standard library backend and plain HTML/CSS/JavaScript; no build step or third-party runtime packages.
+
+The application UI currently uses Simplified Chinese. English and Chinese documentation are provided; an English UI is not yet included.
+
+## Quick start
+
+Requirements: Python 3.10+, [GitHub CLI](https://cli.github.com/), and a GitHub account with read access to the target repository.
+
+1. Download this repository, or clone it, and open a terminal in its directory.
+2. Authenticate and start:
 
 ```sh
+gh auth login
 python3 server.py
+```
+
+The browser opens at `http://127.0.0.1:8766`. Choose your repository (`owner/repo`) and map issue number. No personal repository is configured or fetched by default. On macOS, you can also double-click `start.command`.
+
+To select a map at startup:
+
+```sh
 python3 server.py --repo owner/repo --map 1 --port 8766
 ```
 
-## 使用
+Replace `owner/repo` and `1` with your own repository and map issue number. Add `--no-browser` to skip automatically opening a browser. Stop with Ctrl+C.
 
-- 点击左侧标题或图中节点，在右侧阅读完整问题、前置事项、后续决策与讨论评论。点击关系中的标题可继续查看对应议题。
-- 左侧“可开始”依照地图的原生子议题顺序列出未关闭、未分派且全部前置事项已关闭的决策。
-- 拖动画布平移，滚轮或加减按钮缩放。右下“适应画布”可看全图，百分比按钮恢复 100%。键盘方向键平移，`+` / `-` 缩放，`0` 适应画布。
-- 画布工具栏两端的侧栏按钮，可分别隐藏或展开左右侧栏；隐藏后地图占用空出的宽度。右侧详情的关闭按钮也会收起右侧栏。隐藏保留当前选择、筛选和详情，点击节点会重新展开详情。
-- “聚焦关联”只显示所选决策的上游和下游链。查看地图说明会解除聚焦；收起侧栏保留聚焦。
-- 顶部仓库名称可切换仓库和地图。“查找地图”列出有 `wayfinder:map` 标签的议题，也可直接输入地图编号。
-- 手机尺寸界面提供“关系图 / 决策列表”切换，节点详情以抽屉展开。
-- “导出 HTML”保存当前快照为自包含文件，直接双击即可使用，无需启动服务。离线文件显示快照时间，不能刷新 GitHub。
-- `Wayfinder地图.html` 是交付时生成的离线快照。数据更新后可用页面上的导出按钮重新生成。
+## Preparing a map
 
-## 状态规则与边界
+In GitHub, create a parent issue labeled `wayfinder:map`, add decision issues as its **native sub-issues**, and connect prerequisites using **native blocking relationships**. Markdown links or task lists alone do not create these relationships.
 
-- 已关闭：仅表示 GitHub 议题状态为 closed，不自动推断验收通过或已形成有效决定。
-- 可开始：open、无人分派、所有原生阻塞项均 closed。
-- 被阻塞：至少一项前置仍 open；认领者仍会显示在详情中。
-- 已认领：open、已分派、无未关闭前置；不意味着 Agent 正在执行。
-- 待核实：前置关系没有完整读取成功，不推断为可开始。
-- 地图之外的前置会以虚线节点显示，保留真实状态与 GitHub 链接；同编号跨仓库议题分别识别。
+Optional decision labels are `wayfinder:research`, `wayfinder:prototype`, `wayfinder:grilling`, and `wayfinder:task`. The map body can use `## Destination`, `## Notes`, `## Decisions so far`, `## Not yet specified`, and `## Out of scope` sections. The viewer reads existing maps; it does not create or modify issues.
 
-仅展示地图的直接子议题及它们的直接前置关系，不递归展开子议题自己的子议题。评论按 GitHub 顺序展示，不由程序自动判断哪一条构成正式 resolution。
+## Using the viewer
 
-所有页面状态来自标注时间的快照。刷新失败保留上次快照并提示；若只有个别关系或评论读取失败，快照保留警告，相关节点的依赖状态为待核实。GitHub 在一次读取过程中若被其他会话修改，可能短暂出现状态差异，再次刷新即可核对。
+Select a node or list item to read its question and discussion. Drag to pan and scroll to zoom; arrow keys pan, `+` / `-` zoom, and `0` fits the graph. Focus shows the selected decision’s upstream/downstream chain. The repository button switches maps or finds issues labeled `wayfinder:map`.
 
-## 本地数据
+Opening a map uses its local snapshot when available; otherwise it loads from GitHub. Refresh retrieves new data. Failed refreshes keep the previous snapshot; partial reads show warnings.
 
-服务仅监听 `127.0.0.1`，只调用 GitHub 读取接口。凭据由 `gh` 管理，不进入页面和导出文件。本地 `.cache/` 保存议题正文、关系和评论。导出的 HTML 也包含这些内容，分享前请确认其中的材料适合接收者。
-
-可从命令行导出已有缓存：
+Export HTML saves the current snapshot as a standalone file that opens without the server. It cannot refresh GitHub. To export an already cached map from the command line:
 
 ```sh
-python3 server.py --export Wayfinder地图.html
+python3 server.py --repo owner/repo --map 1 --export wayfinder-map.html
 ```
 
-## 验证
+## State semantics and limits
+
+| State | Meaning |
+| --- | --- |
+| Closed | GitHub issue is closed; this does not certify acceptance or a valid decision. |
+| Ready | Open, unassigned, and every blocker is closed. |
+| Blocked | At least one prerequisite is open. |
+| Claimed | Open and assigned, with no open blockers; this does not mean an agent is running. |
+| Unknown | Dependencies could not be fully read; readiness is not inferred. |
+
+Only direct sub-issues and their direct blockers are loaded. External blockers retain their repository identity and GitHub links. Nested sub-issues are not recursively expanded. Comments are displayed without automatically choosing an authoritative resolution. Snapshots are not atomic: concurrent GitHub edits may require another refresh. Times in the current UI are displayed in Asia/Shanghai.
+
+## Privacy and deployment
+
+This is publicly shareable source for a **local desktop tool**, not a hosted multi-user service. It binds to `127.0.0.1`, uses read-only GitHub requests through your installed `gh`, and does not embed your authentication token in pages or exports. Keep it local; authentication for public hosting is not implemented.
+
+`.cache/` contains issue bodies, relationships, assignees, and comments. Exported HTML contains snapshot data too, including private repository content if you load it. Review exports before sharing. Caches, exported HTML, credentials, and private design references are excluded by `.gitignore`; share source files rather than your entire working folder. Delete `.cache/` to remove local snapshots.
+
+Deleting a sensitive file from the latest version does **not** remove it from Git history. Before publishing an existing repository, inspect its history and release assets, remove sensitive historical content or publish a clean source copy, and rotate any exposed credentials.
+
+## Development
 
 ```sh
 python3 -m unittest discover -s tests -v
 node --check web/app.js
 ```
 
-单测覆盖状态规则、缺失依赖、外部与跨仓库阻塞、分页合并、参数校验、刷新失败保留缓存、导出内容转义。页面交互和离线文件另经浏览器验证。`design/concept.png` 是界面概念，实际文案、数量、状态、连线均使用真实地图数据。
+Node.js is only needed for the JavaScript syntax check. Python tests cover state derivation, missing/cross-repository blockers, pagination, target validation, cache preservation, and export escaping. They do not replace live GitHub or browser compatibility testing.
+
+Bug reports and pull requests are welcome. Use synthetic examples and redact repository content, tokens, and personal details from reports and screenshots. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE). You may use, modify, distribute, and use this software commercially, subject to retaining the copyright and permission notice. The software is provided without warranty. Inspiration does not imply endorsement; upstream projects retain their own licenses.

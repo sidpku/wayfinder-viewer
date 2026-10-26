@@ -1,3 +1,17 @@
 .cache/
 __pycache__/
 *.pyc
+
+# Local credentials and machine-specific files
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+
+# Exports embed repository contents, including private issues and comments
+*.html
+!web/index.html
+
+# Private design references
+/design/

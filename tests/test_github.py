@@ -27,7 +27,7 @@ class GithubTests(unittest.TestCase):
         self.assertIn('repos/a/other/issues/2/comments?per_page=100', calls)
 
     def test_repo_rejects_paths_and_command_options(self):
-        self.assertEqual(validate_repo('sidpku/DSAaaS'), 'sidpku/DSAaaS')
+        self.assertEqual(validate_repo('owner/repo'), 'owner/repo')
         for value in ['../x', '-q/x', 'a/b/c', 'https://github.com/a/b', 'a/b?x=y']:
             with self.assertRaises(ValueError):
                 validate_repo(value)

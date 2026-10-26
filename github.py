@@ -12,7 +12,7 @@ class GithubError(RuntimeError):
 
 def validate_repo(repo):
     if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*', repo or ''):
-        raise ValueError('仓库请填写 owner/repo，例如 sidpku/DSAaaS。')
+        raise ValueError('仓库请填写 owner/repo，例如 owner/repo。')
     return repo
 
 

@@ -12,7 +12,7 @@
 <body>
 <header class="app-header">
   <a class="brand" href="#" aria-label="Wayfinder 首页"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17"/><path d="m24 9-2 13-12 9 8-13z"/></svg><span>Wayfinder</span></a>
-  <button class="source-button" id="sourceButton" title="切换仓库或地图"><span id="repoLabel">sidpku/DSAaaS</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></button>
+  <button class="source-button" id="sourceButton" title="切换仓库或地图"><span id="repoLabel">选择仓库</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></button>
   <span class="header-subtitle">决策地图</span>
   <div class="header-actions"><span id="syncTime" class="sync-time">读取本地快照</span><button id="exportButton" class="button subtle" disabled>导出 HTML</button><button id="refreshButton" class="button primary"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 7a6 6 0 1 0 0 6M16 3v4h-4"/></svg><span>刷新地图</span></button></div>
 </header>
@@ -34,7 +34,7 @@
   </section>
   <aside id="inspector" class="inspector" aria-label="决策详情"><div class="inspector-header"><h2 id="inspectorHeading">决策详情</h2><button id="closeDetail" class="icon-button" aria-label="关闭详情" title="隐藏右侧栏"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div><div id="detailContent" class="detail-content"><div class="detail-placeholder">选择一个决策，查看问题、前置事项与讨论记录。</div></div><footer>来源：GitHub 原生关系<br><span>已认领表示议题已分派，不代表正在执行。</span></footer></aside>
 </main>
-<dialog id="sourceDialog" class="source-dialog"><form id="sourceForm"><div class="dialog-heading"><h2>打开 Wayfinder 地图</h2><button type="button" id="closeSource" class="icon-button" aria-label="关闭"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div><label>GitHub 仓库<input id="repoInput" required value="sidpku/DSAaaS" placeholder="owner/repo" autocomplete="off"></label><div class="map-picker"><label>地图议题编号<input id="mapNumberInput" required type="number" min="1" value="1"></label><button type="button" id="findMapsButton" class="button subtle">查找地图</button></div><div id="mapChoices" class="map-choices"></div><p id="sourceError" class="form-error" role="alert"></p><p class="form-hint">使用本机 gh 的登录账号读取数据。请选有 wayfinder:map 标签的地图议题。</p><button type="submit" class="button primary open-map-button">打开地图</button></form></dialog>
+<dialog id="sourceDialog" class="source-dialog"><form id="sourceForm"><div class="dialog-heading"><h2>打开 Wayfinder 地图</h2><button type="button" id="closeSource" class="icon-button" aria-label="关闭"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div><label>GitHub 仓库<input id="repoInput" required value="" placeholder="owner/repo" autocomplete="off"></label><div class="map-picker"><label>地图议题编号<input id="mapNumberInput" required type="number" min="1" value="1"></label><button type="button" id="findMapsButton" class="button subtle">查找地图</button></div><div id="mapChoices" class="map-choices"></div><p id="sourceError" class="form-error" role="alert"></p><p class="form-hint">使用本机 gh 的登录账号读取数据。请选有 wayfinder:map 标签的地图议题。</p><button type="submit" class="button primary open-map-button">打开地图</button></form></dialog>
 <div id="toast" class="toast" role="status" hidden></div>
 </body>
 </html>
