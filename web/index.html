@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Wayfinder · 决策地图</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='17' fill='none' stroke='%23087f70' stroke-width='3'/%3E%3Cpath d='m24 10-2 12-12 8 8-12z' fill='%23087f70'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/styles.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<header class="app-header">
+  <a class="brand" href="#" aria-label="Wayfinder 首页"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17"/><path d="m24 9-2 13-12 9 8-13z"/></svg><span>Wayfinder</span></a>
+  <button class="source-button" id="sourceButton" title="切换仓库或地图"><span id="repoLabel">sidpku/DSAaaS</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></button>
+  <span class="header-subtitle">决策地图</span>
+  <div class="header-actions"><span id="syncTime" class="sync-time">读取本地快照</span><button id="exportButton" class="button subtle" disabled>导出 HTML</button><button id="refreshButton" class="button primary"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 7a6 6 0 1 0 0 6M16 3v4h-4"/></svg><span>刷新地图</span></button></div>
+</header>
+<div id="notice" class="notice" role="status" hidden></div>
+<main class="workspace">
+  <aside id="sidebar" class="sidebar" aria-label="地图概览">
+    <div class="overview"><h2>项目概览</h2><div id="destination" class="destination">正在读取地图…</div><button id="overviewButton" class="text-button" disabled>查看目标与地图说明<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg></button></div>
+    <div class="list-tabs" role="tablist" aria-label="决策范围"><button id="frontierTab" role="tab" aria-selected="false" data-scope="frontier">可开始 <span id="frontierCount">0</span></button><button id="allTab" role="tab" aria-selected="true" data-scope="all">全部 <span id="totalCount">0</span></button></div>
+    <label class="search-box"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><input id="searchInput" type="search" placeholder="搜索决策…" aria-label="搜索决策"></label>
+    <div id="issueList" class="issue-list" aria-label="决策列表"></div>
+    <div class="legend" id="legend"></div>
+  </aside>
+  <section class="map-area" aria-label="决策依赖地图">
+    <div class="map-heading"><h1 id="mapTitle">Wayfinder 决策地图</h1><div id="mapSummary" class="map-summary">GitHub 原生父子关系与阻塞依赖</div></div>
+    <div class="map-toolbar"><button id="toggleLeftPanel" class="panel-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="隐藏左侧栏" title="隐藏左侧栏"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M7 3v14"/><path class="panel-arrow" d="m13 7-3 3 3 3"/></svg></button><span class="view-label"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="2" width="6" height="4" rx="1"/><rect x="1" y="13" width="6" height="4" rx="1"/><rect x="13" y="13" width="6" height="4" rx="1"/><path d="M10 6v4M4 13v-3h12v3"/></svg>依赖地图</span><label class="select-wrap"><select id="statusFilter" aria-label="按状态筛选"><option value="all">全部状态</option><option value="frontier">可开始</option><option value="blocked">被阻塞</option><option value="claimed">已认领</option><option value="closed">已关闭</option><option value="unknown">待核实</option></select></label><label class="select-wrap"><select id="typeFilter" aria-label="按决策类型筛选"><option value="all">全部类型</option><option value="grilling">讨论</option><option value="research">调研</option><option value="prototype">原型</option><option value="task">准备事项</option></select></label><button id="focusButton" class="button subtle compact" aria-pressed="false">聚焦关联</button><button id="toggleRightPanel" class="panel-toggle" aria-controls="inspector" aria-expanded="true" aria-label="隐藏右侧栏" title="隐藏右侧栏"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M13 3v14"/><path class="panel-arrow" d="m7 7 3 3-3 3"/></svg></button></div>
+    <div class="mobile-tabs" role="tablist" aria-label="地图视图"><button class="active" id="graphViewButton">关系图</button><button id="listViewButton">决策列表</button></div>
+    <div id="graphViewport" class="graph-viewport" tabindex="0" aria-label="依赖画布，可拖动平移，滚轮缩放"><div id="graphWorld" class="graph-world"><svg id="graphEdges" class="graph-edges" aria-hidden="true"></svg><div id="graphNodes"></div></div><div id="graphEmpty" class="graph-empty" hidden></div></div>
+    <div class="canvas-footer"><span id="canvasHint">连线：前置事项 → 后续决策 · 拖动画布移动</span><div class="zoom-controls"><button id="fitButton" title="适应画布" aria-label="适应画布"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/></svg></button><button id="zoomOutButton" aria-label="缩小"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12"/></svg></button><button id="zoomValue" title="重置为 100%">100%</button><button id="zoomInButton" aria-label="放大"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12"/></svg></button></div></div>
+  </section>
+  <aside id="inspector" class="inspector" aria-label="决策详情"><div class="inspector-header"><h2 id="inspectorHeading">决策详情</h2><button id="closeDetail" class="icon-button" aria-label="关闭详情" title="隐藏右侧栏"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div><div id="detailContent" class="detail-content"><div class="detail-placeholder">选择一个决策，查看问题、前置事项与讨论记录。</div></div><footer>来源：GitHub 原生关系<br><span>已认领表示议题已分派，不代表正在执行。</span></footer></aside>
+</main>
+<dialog id="sourceDialog" class="source-dialog"><form id="sourceForm"><div class="dialog-heading"><h2>打开 Wayfinder 地图</h2><button type="button" id="closeSource" class="icon-button" aria-label="关闭"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button></div><label>GitHub 仓库<input id="repoInput" required value="sidpku/DSAaaS" placeholder="owner/repo" autocomplete="off"></label><div class="map-picker"><label>地图议题编号<input id="mapNumberInput" required type="number" min="1" value="1"></label><button type="button" id="findMapsButton" class="button subtle">查找地图</button></div><div id="mapChoices" class="map-choices"></div><p id="sourceError" class="form-error" role="alert"></p><p class="form-hint">使用本机 gh 的登录账号读取数据。请选有 wayfinder:map 标签的地图议题。</p><button type="submit" class="button primary open-map-button">打开地图</button></form></dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
